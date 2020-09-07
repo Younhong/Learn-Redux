@@ -55,13 +55,22 @@
                             type: 'CHANGE_MODE',
                             mode: 'create'
                         });
-
                     " href="/create">Create</a></li>
+
                     <li><input onclick="
                         store.dispatch({
                             type: 'DELETE'
                         });
                     " type="button" value="delete"></li>
+
+                    <li><a onclick="
+                        event.preventDefault();
+                        store.dispatch({
+                            type: 'CHANGE_MODE',
+                            mode: 'update'
+                        });
+                    " href="/update">Update</a></li>
+
                 </ul>
                 `
             }
@@ -119,7 +128,32 @@
                         Hello, Redux!!
                     </article>
                     `
-
+                } else if (state.mode === 'update') {
+                    document.querySelector('#content').innerHTML = `
+                    <article>
+                        <form onsubmit="
+                            event.preventDefault();
+                            var _title = this.title.value;
+                            var _desc = this.desc.value;
+                            store.dispatch({
+                                type:'UPDATE',
+                                title: _title,
+                                desc: _desc
+                            })
+                        ">
+                            <p>
+                                <input type="text" name="title"
+                                placeholder="title">
+                            </p>
+                            <p>
+                                <textarea name="desc" placeholder="description"></textarea>
+                            </p>
+                            <p>
+                                <input type="submit">
+                            </p>
+                        </form>
+                    </article>
+                    `
                 }
             }
 
@@ -173,7 +207,25 @@
                 } else if (action.type === 'CHANGE_MODE') {
                     newState = Object.assign({}, state, {
                         mode: action.mode
-                    })
+                    });
+                } else if (action.type === "UPDATE") {
+                    var i = 0;
+                    var newContents = [];
+                    while (i < state.contents.length) {
+                        if (state.selected_id !== state.contents[i].id) {
+                            newContents.push(
+                                state.contents[i]
+                            );
+                        }
+                        else {
+                            newContents.push({id: state.selected_id, title: action.title, desc: action.desc});
+                        }
+                        i = i + 1;
+                    };
+                    newState = Object.assign({}, state, {
+                        contents: newContents,
+                        mode: 'read'
+                    });
                 }
                 console.log(action, state,newState);
 
